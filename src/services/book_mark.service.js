@@ -1,3 +1,4 @@
+const checkPostInteractions = require("@/helper/checkPostInteractions");
 const { BookMark, User, Post, Topic } = require("@/models/index");
 const { getBookMarkTargetByType } = require("@/utils/bookMarkTarget");
 
@@ -25,14 +26,17 @@ class BookMarksService {
     return { users, total };
   }
 
-  async getBookMarkedUserId(userId, type) {
-    const { model: Model, attributes } = getBookMarkTargetByType(type);
+  async getBookMarkedUserId(userId, type, page, limit) {
+    const offset = (page - 1) * limit;
+    const { model: Model } = getBookMarkTargetByType(type);
 
     const { rows: bookmarks, count: total } = await BookMark.findAndCountAll({
       where: {
         user_id: userId,
         book_mark_able_type: type,
       },
+      limit,
+      offset,
       attributes: ["book_mark_able_id", "created_at"],
     });
 
@@ -48,7 +52,7 @@ class BookMarksService {
       bookmarkTimeMap.set(b.book_mark_able_id, b.created_at);
     });
 
-    const bookMarks = await Model.findAll({
+    const posts = await Model.findAll({
       where: { id: ids },
       include: [
         {
@@ -64,13 +68,18 @@ class BookMarksService {
       ],
     });
 
-    const result = bookMarks.map((item) => {
-      const data = item.toJSON();
-      data.bookMarkedAt = bookmarkTimeMap.get(item.id);
-      return data;
+    const interactions = await checkPostInteractions(ids, userId);
+
+    const result = posts.map((post) => {
+      const plain = post.get({ plain: true });
+      const { isLiked, isBookMarked } = interactions.get(post.id) || {};
+      plain.isLiked = isLiked || false;
+      plain.isBookMarked = isBookMarked || false;
+      plain.bookMarkedAt = bookmarkTimeMap.get(post.id);
+      return plain;
     });
 
-    return { bookMarks: result, total };
+    return { bookMarks: result, total, limit };
   }
 
   async bookmark(userId, type, bookmarkAbleId) {

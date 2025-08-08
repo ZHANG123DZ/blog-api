@@ -26,8 +26,8 @@ router.use("/likes", likeRouter);
 router.use("/book-marks", bookmarkRouter);
 router.use("/media", mediaRouter);
 router.use("/upload", uploadRouter);
+router.use("/conversations/:conversation/messages", messagesRouter);
 router.use("/conversations", auth, conversationRouter);
-router.use("/conversations/:conversation/messages", auth, messagesRouter);
 
 //Route cho posts và các thành phần con
 router.use("/posts", postRouter);

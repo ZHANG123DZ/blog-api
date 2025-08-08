@@ -84,10 +84,23 @@ const destroy = async (req, res) => {
   }
 };
 
+const chatAI = async (req, res) => {
+  const conversationId = req.params.conversation;
+  const { input, botId } = req.body;
+
+  if (!conversationId || !input) {
+    throwError(400, "Missing conversation_id or content");
+  }
+
+  const message = await messageService.chatAI(conversationId, botId, input);
+  response.success(res, 201, message);
+};
+
 module.exports = {
   index,
   show,
   store,
   update,
   destroy,
+  chatAI,
 };

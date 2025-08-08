@@ -57,7 +57,7 @@ class ConversationService {
         {
           model: User,
           as: "users",
-          attributes: ["id", "full_name", "avatar_url", "username"],
+          attributes: ["id", "full_name", "avatar_url", "username", "role"],
           through: { attributes: [] },
         },
         {
@@ -70,46 +70,68 @@ class ConversationService {
         {
           model: MessageRead,
           as: "list_readers",
+          where: { user_id: userId },
+          required: false,
         },
       ],
       order: [["updated_at", "DESC"]],
     });
 
-    return Promise.all(
-      conversations.map(async (conversation) => {
-        const conv = conversation.get({ plain: true });
+    const convIds = conversations.map((c) => c.id);
 
-        if (conv.users.length === 2) {
-          const speaker = conv.users.find((u) => u.id !== userId);
-          conv.name = speaker.full_name;
-          conv.avatar_url = speaker.avatar_url;
-        }
+    // 1. Lấy message_id cuối đã đọc
+    const reads = await MessageRead.findAll({
+      where: { user_id: userId },
+      attributes: ["conversation_id", "message_id"],
+      raw: true,
+    });
 
-        conv.lastMessage = conv.messages?.[0] ?? null;
-        delete conv.messages;
+    const lastReadMap = new Map(
+      reads.map((r) => [r.conversation_id, r.message_id])
+    );
 
-        const myRead = conv.list_readers?.[0] ?? null;
-        let unreadCount = 0;
+    const { Op } = Sequelize;
 
-        if (!myRead || myRead.message_id === null) {
-          unreadCount = await Message.count({
-            where: { conversation_id: conversation.id },
-          });
-        } else {
-          unreadCount = await Message.count({
-            where: {
-              conversation_id: conversation.id,
-              id: { [Op.gt]: myRead.message_id },
-            },
-          });
-        }
+    // 2. Đếm tin chưa đọc
+    const unreadCountsArr = await Promise.all(
+      convIds.map(async (convId) => {
+        const lastReadId = lastReadMap.get(convId) || 0;
 
-        conv.unreadCount = unreadCount;
-        delete conv.list_readers;
+        const count = await Message.count({
+          where: {
+            conversation_id: convId,
+            user_id: { [Op.ne]: userId },
+            id: { [Op.gt]: lastReadId },
+          },
+        });
 
-        return conv;
+        return { conversation_id: convId, unread_count: count };
       })
     );
+
+    const unreadMap = new Map(
+      unreadCountsArr.map((u) => [u.conversation_id, u.unread_count])
+    );
+
+    // 3. Build kết quả
+    return conversations.map((conv) => {
+      const data = conv.get({ plain: true });
+
+      if (data.users.length === 2) {
+        const speaker = data.users.find((u) => u.id !== userId);
+        data.name = speaker.full_name;
+        data.avatar_url = speaker.avatar_url;
+      }
+
+      data.lastMessage = data.messages?.[0] ?? null;
+      delete data.messages;
+
+      data.unreadCount = unreadMap.get(data.id) || 0;
+
+      delete data.list_readers;
+
+      return data;
+    });
   }
 
   async getById(id, userId) {
@@ -225,7 +247,6 @@ class ConversationService {
         });
       }
     }
-    return;
   }
 }
 

@@ -19,11 +19,16 @@ const getBookMarks = async (req, res) => {
 
 const getBookMarkedUserId = async (req, res) => {
   const { type, id } = req.params;
-  const userId = req.user.id;
+  const { page, limit } = req;
 
   try {
-    const results = await bookmarksService.getBookMarkedUserId(id, type);
-    return response.success(res, 200, results);
+    const { bookMarks, total } = await bookmarksService.getBookMarkedUserId(
+      id,
+      type,
+      page,
+      limit
+    );
+    res.paginate({ items: bookMarks, total });
   } catch (error) {
     console.log(error);
     return response.error(

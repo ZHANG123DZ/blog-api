@@ -158,19 +158,23 @@ class authService {
 
   async changePassword(userId, data) {
     const { currentPassword, newPassword } = data;
-    const saltRounds = 10;
-    const currentPass = await bcrypt.hash(currentPassword, saltRounds);
-    const newPass = await bcrypt.hash(newPassword, saltRounds);
 
     const curUser = await User.findOne({ where: { id: userId } });
-    if (curUser.dataValues.password != currentPass)
-      return Error("Mật khẩu không chính xác");
+    if (!curUser) {
+      throw new Error("User không tồn tại");
+    }
 
-    const userUpdated = await User.update(
-      { password: newPass },
-      { where: { id: userId } }
-    );
-    return userUpdated.dataValues;
+    const isMatch = await bcrypt.compare(currentPassword, curUser.password);
+    if (!isMatch) {
+      throw new Error("Mật khẩu hiện tại không chính xác");
+    }
+
+    const saltRounds = 10;
+    const newHashedPass = await bcrypt.hash(newPassword, saltRounds);
+
+    await User.update({ password: newHashedPass }, { where: { id: userId } });
+
+    return { success: true, message: "Đổi mật khẩu thành công" };
   }
 
   async sendCode(data) {

@@ -80,7 +80,7 @@ class FollowsService {
       updated_at: new Date(),
     });
     pusher.trigger(
-      `notification-user-${followAbleId}`,
+      `notifications-user-${followAbleId}`,
       "new-notification",
       notify
     );

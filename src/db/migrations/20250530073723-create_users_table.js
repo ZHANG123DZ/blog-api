@@ -82,7 +82,7 @@ module.exports = {
           type: Sequelize.DATEONLY,
         },
         role: {
-          type: Sequelize.ENUM("user", "admin"),
+          type: Sequelize.STRING(100),
         },
         status: {
           type: Sequelize.ENUM("active", "inactive", "banned"),

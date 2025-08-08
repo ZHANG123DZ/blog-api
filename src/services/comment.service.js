@@ -129,6 +129,7 @@ class CommentsService {
       avatar: comment.author.avatar_url,
       name: comment.author.full_name,
     };
+
     comment.dataValues.createdAt = comment.created_at;
     comment.dataValues.likes = Number(comment.like_count);
     pusher.trigger(`post-${data.post_id}-comments`, "new-comment", comment);

@@ -22,7 +22,7 @@ async function checkPostInteractions(postIds, userId) {
     attributes: ["like_able_id"],
     raw: true,
   });
-  const likedPostIds = new Set(likes.map((l) => l.likeable_id));
+  const likedPostIds = new Set(likes.map((l) => l.like_able_id));
 
   const bookmarks = await BookMark.findAll({
     where: {

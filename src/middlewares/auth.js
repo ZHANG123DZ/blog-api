@@ -12,8 +12,8 @@ module.exports = async (req, res, next) => {
   try {
     const decoded = accessToken.verify(token);
 
-    const user = await User.findByPk(decoded.sub);
-    const userData = user.dataValues;
+    const user = await User.findByPk(decoded?.sub);
+    const userData = user?.dataValues;
     if (
       !userData ||
       userData.status === "banned" ||

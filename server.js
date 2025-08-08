@@ -10,7 +10,7 @@ const errorsHandler = require("@/middlewares/errorHandler");
 const handlePagination = require("@/middlewares/handlePagination");
 const allowedOrigins = process.env.CLIENT_URL.split(",");
 const cookieParser = require("cookie-parser");
-const pusher = require("@/configs/pusher");
+const openai = require("@/utils/gemini");
 const app = express();
 
 //Middleware
@@ -32,11 +32,20 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(handlePagination);
-app.post("/send-message", (req, res) => {
-  pusher.trigger("k12", "created", {
-    message: req.body.message,
+app.post("/ask-ai", async (req, res) => {
+  const AIMessage = await openai.send({
+    messages: [
+      {
+        role: "system",
+        content: "Bạn là hướng dẫn viên du lịch",
+      },
+      {
+        role: "user",
+        content: "Chuyến đi Hong Kong hết bao tiền",
+      },
+    ],
   });
-  res.send("Sent!");
+  res.json(AIMessage);
 });
 app.use("/api/v1", router);
 

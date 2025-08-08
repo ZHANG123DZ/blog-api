@@ -1,5 +1,9 @@
 const pusher = require("@/configs/pusher");
+const getAgentByIntent = require("@/function/getAgentByIntent");
 const { Message, Conversation, UserConversation, User } = require("@/models");
+const intentClassifier = require("@/utils/intentClassifier");
+const { Op } = require("sequelize");
+const openai = require("@/utils/openai");
 
 class MessageService {
   async checkAccess(conversationId, userId) {
@@ -101,6 +105,56 @@ class MessageService {
       "new-message",
       message
     );
+    return message;
+  }
+  async chatAI(conversationId, botId, input) {
+    //Gọi ra AI để trả lời để ra content lưu vào DB
+
+    const oldMessages = await Message.findAll({
+      where: {
+        conversation_id: conversationId,
+        user_id: {
+          [Op.ne]: botId, // loại bot ra nếu cần
+        },
+      },
+      limit: 10,
+      order: [["created_at", "DESC"]],
+      attributes: ["content"],
+      raw: true, // trả về plain object thay vì instance
+    });
+    oldMessages.reverse();
+    const messagesWithRole = oldMessages.map((mes) => ({
+      ...mes,
+      role: mes.user_id === botId ? "bot" : "user",
+    }));
+
+    const intent = await intentClassifier(messagesWithRole);
+
+    const systemPromptAgent = getAgentByIntent(intent);
+
+    const AIMessage = await openai.send({
+      input: [
+        {
+          role: "system",
+          content: systemPromptAgent,
+        },
+        ...messagesWithRole,
+      ],
+    });
+
+    const message = await Message.create({
+      conversation_id: conversationId,
+      user_id: botId,
+      content: AIMessage,
+    });
+
+    pusher.trigger(
+      `conversation-${message.conversation_id}`,
+      "new-message",
+      message
+    );
+
+    message.dataValues.user_id = "other";
     return message;
   }
 }

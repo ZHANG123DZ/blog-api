@@ -101,6 +101,14 @@ class NotificationService {
     await Notification.update(data, { where: { id } });
     return;
   }
+
+  async readAll(userId) {
+    await Notification.update(
+      { read_at: new Date() },
+      { where: { user_id: userId } }
+    );
+    return;
+  }
 }
 
 module.exports = new NotificationService();
