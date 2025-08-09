@@ -48,6 +48,7 @@ module.exports = {
         like_count: 0,
         role: "user",
         status: "active",
+        last_seen: new Date(),
         two_factor_enabled: false,
         created_at: new Date(),
         updated_at: new Date(),

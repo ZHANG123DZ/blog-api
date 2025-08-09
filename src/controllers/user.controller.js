@@ -55,4 +55,52 @@ const destroy = async (req, res) => {
   response.success(res, 204);
 };
 
-module.exports = { show, index, store, update, destroy, getUserPosts };
+async function updateOnline(req, res) {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: "Missing userId" });
+
+    const result = await usersService.setUserOnline(userId);
+    return res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+async function updateOffline(req, res) {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: "Missing userId" });
+
+    const result = await usersService.setUserOffline(userId);
+    return res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+async function getStatus(req, res) {
+  try {
+    const username = req.params.username;
+    const status = await usersService.getUserStatus(username);
+    if (!status) return res.status(404).json({ error: "User not found" });
+    return res.json(status);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+module.exports = {
+  show,
+  index,
+  store,
+  update,
+  destroy,
+  getUserPosts,
+  updateOnline,
+  updateOffline,
+  getStatus,
+};

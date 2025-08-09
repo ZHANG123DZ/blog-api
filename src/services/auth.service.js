@@ -236,7 +236,7 @@ class authService {
   }
 
   async logout(id) {
-    return post;
+    return id;
   }
 }
 

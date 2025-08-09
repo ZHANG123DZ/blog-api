@@ -57,7 +57,23 @@ class ConversationService {
         {
           model: User,
           as: "users",
-          attributes: ["id", "full_name", "avatar_url", "username", "role"],
+          attributes: [
+            "id",
+            "full_name",
+            "avatar_url",
+            "username",
+            "role",
+            "last_seen",
+            [
+              Sequelize.cast(
+                Sequelize.literal(`
+      TIMESTAMPDIFF(SECOND, users.last_seen, NOW()) <= 60
+    `),
+                "boolean"
+              ),
+              "isOnline",
+            ],
+          ],
           through: { attributes: [] },
         },
         {
@@ -155,7 +171,13 @@ class ConversationService {
             {
               model: User,
               as: "sender",
-              attributes: ["id", "username", "full_name", "avatar_url"],
+              attributes: [
+                "id",
+                "username",
+                "full_name",
+                "avatar_url",
+                "last_seen",
+              ],
             },
           ],
         },

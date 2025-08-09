@@ -103,6 +103,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: 0,
       },
+      last_seen: {
+        type: DataTypes.DATE(6),
+        allowNull: true,
+      },
       login_provider: {
         type: DataTypes.STRING(100),
         allowNull: true,

@@ -1,3 +1,4 @@
+const pusher = require("@/configs/pusher");
 const checkPostInteractions = require("@/helper/checkPostInteractions");
 const {
   User,
@@ -135,6 +136,43 @@ class UsersService {
       where: isId ? { id: key } : { username: key },
     });
     return user;
+  }
+
+  async setUserOnline(userId) {
+    await User.update({ last_seen: null }, { where: { id: userId } });
+
+    return {
+      userId,
+      online: true,
+    };
+  }
+
+  async setUserOffline(userId) {
+    await User.update({ last_seen: new Date() }, { where: { id: userId } });
+
+    const user = await User.findOne({
+      where: { id: userId },
+      attributes: ["last_seen"],
+    });
+
+    return {
+      userId,
+      online: false,
+      last_seen: user?.last_seen || null,
+    };
+  }
+
+  async getUserStatus(username) {
+    const user = await User.findOne({
+      where: { username },
+      attributes: ["last_seen"],
+    });
+
+    return {
+      username,
+      online: user?.last_seen === null,
+      last_seen: user?.last_seen || null,
+    };
   }
 }
 

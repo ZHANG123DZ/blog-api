@@ -98,6 +98,9 @@ module.exports = {
           type: Sequelize.BOOLEAN,
           defaultValue: 0,
         },
+        last_seen: {
+          type: Sequelize.DATE(6),
+        },
         login_provider: {
           type: Sequelize.STRING(100),
         },

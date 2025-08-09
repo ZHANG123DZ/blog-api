@@ -15,7 +15,9 @@ const conversationRouter = require("./conversation.route");
 const messagesRouter = require("./message.route");
 const notificationRouter = require("./notification.route");
 const auth = require("@/middlewares/auth");
+const broadcastingRouter = require("./broadcasting.route");
 
+router.use("/broadcasting", broadcastingRouter);
 router.use("/auth", authRouter);
 router.use("/users", userRouter);
 router.use("/topics", topicRouter);

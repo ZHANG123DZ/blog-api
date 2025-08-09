@@ -241,7 +241,9 @@ const logout = async (req, res) => {
   const token = readCookie(req, "token");
   const data = await authService.auth(token);
   const newToken = accessToken.create(data, { expiresIn: "1s" });
+  const newRefreshToken = refreshToken.create(data, { expiresIn: "1s" });
   createCookie(res, "token", newToken, { maxAge: 1000 });
+  createCookie(res, "refresh-token", newRefreshToken, { maxAge: 1000 });
   response.success(res, 200);
 };
 

@@ -32,21 +32,6 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(handlePagination);
-app.post("/ask-ai", async (req, res) => {
-  const AIMessage = await openai.send({
-    messages: [
-      {
-        role: "system",
-        content: "Bạn là hướng dẫn viên du lịch",
-      },
-      {
-        role: "user",
-        content: "Chuyến đi Hong Kong hết bao tiền",
-      },
-    ],
-  });
-  res.json(AIMessage);
-});
 app.use("/api/v1", router);
 
 //Error Handler
