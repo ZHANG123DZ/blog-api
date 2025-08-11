@@ -65,6 +65,16 @@ const destroy = async (req, res) => {
   response.success(res, 204);
 };
 
+const getUserPostForEdit = async (req, res) => {
+  const userId = req.user.id;
+  const post = await postsService.getUserPostForEdit(userId, req.params.slug);
+  if (post) {
+    response.success(res, 201, post);
+  } else {
+    response.error(res, 403, "Khong co quyen truy cap");
+  }
+};
+
 module.exports = {
   show,
   index,
@@ -74,4 +84,5 @@ module.exports = {
   featured,
   related,
   latest,
+  getUserPostForEdit,
 };

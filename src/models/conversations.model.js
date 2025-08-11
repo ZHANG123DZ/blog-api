@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(255),
         allowNull: true,
       },
+      is_group: {
+        type: DataTypes.TINYINT(),
+        defaultValue: 0,
+      },
       deleted_at: {
         type: DataTypes.DATE(6),
         allowNull: true,

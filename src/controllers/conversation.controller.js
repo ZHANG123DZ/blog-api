@@ -5,10 +5,10 @@ const throwError = require("@/utils/throwError");
 
 exports.create = async (req, res) => {
   const { id: currentUserId } = req.user;
-  const { participants_id } = req.body;
+  const { participantsId } = req.body;
   const conversation = await ConversationService.create(
     currentUserId,
-    participants_id,
+    participantsId,
     req.body
   );
   response.success(res, 201, conversation);
@@ -61,6 +61,25 @@ exports.markedRead = async (req, res) => {
     conversationId,
     messageId,
     readAt
+  );
+  response.success(res, 200, conversation);
+};
+
+exports.joinGroup = async (req, res) => {
+  const { participantsId } = req.body;
+  const conversationId = req.params.id;
+  const conversation = await ConversationService.joinGroup(
+    participantsId,
+    conversationId
+  );
+  response.success(res, 200, conversation);
+};
+exports.leaveGroup = async (req, res) => {
+  const userId = req.user.id;
+  const conversationId = req.params.id;
+  const conversation = await ConversationService.leaveGroup(
+    userId,
+    conversationId
   );
   response.success(res, 200, conversation);
 };

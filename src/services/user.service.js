@@ -19,6 +19,7 @@ class UsersService {
       limit,
       offset,
       order: [["created_at", "DESC"]],
+      attributes: ["id", "username", "avatar_url", "full_name"],
     });
 
     return { items, total };

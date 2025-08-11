@@ -12,6 +12,7 @@ router.post("/related", getCurrentUser, postsController.related);
 router.get("/:key", postsController.show);
 router.post("/", auth, postsController.store);
 router.put("/:key", auth, postsController.update);
+router.get("/edit/:slug", auth, postsController.getUserPostForEdit);
 router.patch("/:key", auth, postsController.update);
 router.delete("/:key", auth, postsController.destroy);
 

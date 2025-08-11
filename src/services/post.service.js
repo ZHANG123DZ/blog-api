@@ -246,6 +246,30 @@ class PostsService {
 
     return { message: "Post deleted successfully" };
   }
+
+  async getUserPostForEdit(userId, slug) {
+    const post = await Post.findOne({
+      where: { author_id: userId, slug },
+      attributes: [
+        "title",
+        "excerpt",
+        "content",
+        "cover_url",
+        "thumbnail_url",
+        "status",
+        "visibility",
+        "meta_title",
+        "meta_description",
+      ],
+      include: [
+        {
+          model: Topic,
+          as: "topics",
+        },
+      ],
+    });
+    return post;
+  }
 }
 
 module.exports = new PostsService();

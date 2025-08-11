@@ -22,6 +22,9 @@ module.exports = {
       name: {
         type: Sequelize.STRING(255),
       },
+      is_group: {
+        type: Sequelize.TINYINT,
+      },
       created_at: {
         type: Sequelize.DATE(6),
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP(6)"),
