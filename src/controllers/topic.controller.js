@@ -11,7 +11,9 @@ const index = async (req, res) => {
 
 const show = async (req, res) => {
   const slug = req.params.slug;
-  const topic = await topicService.getById(slug);
+  const userId = req.user?.id;
+
+  const topic = await topicService.getById(slug, userId);
 
   if (!topic) throwError(404, "Not Found.");
 

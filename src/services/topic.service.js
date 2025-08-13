@@ -1,3 +1,4 @@
+const checkPostInteractions = require("@/helper/checkPostInteractions");
 const { Topic, Post } = require("@/models/index");
 const { where, Op } = require("sequelize");
 
@@ -14,17 +15,25 @@ class TopicService {
     return { items, total };
   }
 
-  async getById(slug) {
+  async getById(slug, userId) {
     const topic = await Topic.findOne({
       where: { slug },
-      include: [
-        {
-          model: Post,
-          as: "posts",
-        },
-      ],
+      include: [{ model: Post, as: "posts" }],
     });
-    return topic;
+
+    if (!topic) return null;
+
+    const postIds = topic.posts.map((p) => p.id);
+    const interactions = await checkPostInteractions(postIds, userId);
+
+    const plainTopic = topic.get({ plain: true });
+    plainTopic.posts = plainTopic.posts.map((post) => {
+      const { isLiked = false, isBookMarked = false } =
+        interactions.get(post.id) || {};
+      return { ...post, isLiked, isBookMarked };
+    });
+
+    return plainTopic;
   }
 
   async create(data) {

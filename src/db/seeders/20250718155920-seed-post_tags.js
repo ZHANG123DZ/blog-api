@@ -37,7 +37,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete("post_tags", null, {});
-    await queryInterface.sequelize.query(`
+    return queryInterface.sequelize.query(`
       UPDATE tags SET post_count = 0
     `);
   },

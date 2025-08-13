@@ -10,7 +10,6 @@ const errorsHandler = require("@/middlewares/errorHandler");
 const handlePagination = require("@/middlewares/handlePagination");
 const allowedOrigins = process.env.CLIENT_URL.split(",");
 const cookieParser = require("cookie-parser");
-const openai = require("@/utils/gemini");
 const app = express();
 
 //Middleware

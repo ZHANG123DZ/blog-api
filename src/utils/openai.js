@@ -1,7 +1,7 @@
 const OpenAI = require("openai");
 
 const openai = new OpenAI({
-  apiKey: process.env.API_KEY_OPENAI,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 async function send({ input, temperature = 0.7, model = "gpt-4o-mini" }) {
